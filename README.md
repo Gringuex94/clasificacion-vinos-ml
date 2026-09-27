@@ -1,6 +1,6 @@
 # Clasificación de Vinos con Machine Learning + API
 
-📊 [Ver infografía interactiva](https://gringuex94.github.io/clasificacion-vinos-ml/vinos-infografia.html
+📊 Ver infografía interactiva (https://gringuex94.github.io/clasificacion-vinos-ml/vinos-infografia.html)
 Proyecto final de la diplomatura en Python (orientación a Inteligencia Artificial). Clasifica muestras de vino en 3 categorías a partir de sus características químicas, y expone el modelo entrenado como una API REST.
 
 ## ¿Qué hace?
