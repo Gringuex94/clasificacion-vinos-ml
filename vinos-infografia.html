@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clasificación de Vinos con ML + API</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #241017;
+    --bg-panel: #331722;
+    --text: #F3E8DD;
+    --text-dim: #C8AFA4;
+    --wine: #B14A63;
+    --gold: #C9A227;
+    --line: rgba(243,232,221,0.14);
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 5rem 1.5rem 4rem; }
+  h1, h2 { font-family: 'Fraunces', serif; margin: 0; font-weight: 600; }
+  .hero h1 { font-size: clamp(2.1rem, 6vw, 3.2rem); line-height: 1.08; letter-spacing: -0.01em; }
+  .hero p.sub { color: var(--text-dim); font-size: 1.15rem; max-width: 34rem; margin: 1.2rem 0 0; }
+  .meta-row { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 2.4rem; }
+  .meta-item { border-left: 2px solid var(--gold); padding-left: 0.8rem; }
+  .meta-item .num { font-family: 'Fraunces', serif; font-size: 1.7rem; font-weight: 600; display: block; }
+  .meta-item .lbl { color: var(--text-dim); font-size: 0.85rem; }
+
+  section { margin-top: 4.5rem; }
+  section h2 { font-size: 1.5rem; margin-bottom: 1.6rem; }
+
+  .flow { display: flex; flex-direction: column; }
+  .step { display: flex; gap: 1rem; padding: 1.1rem 0; border-top: 1px solid var(--line); }
+  .step:last-child { border-bottom: 1px solid var(--line); }
+  .step .n { font-family: 'IBM Plex Mono', monospace; color: var(--gold); font-size: 0.95rem; min-width: 1.6rem; }
+  .step .body b { display: block; font-size: 1.02rem; }
+  .step .body span { color: var(--text-dim); font-size: 0.92rem; }
+
+  .bars { display: flex; flex-direction: column; gap: 1.1rem; }
+  .bar-row { display: grid; grid-template-columns: 9rem 1fr 3.2rem; align-items: center; gap: 0.9rem; }
+  .bar-row .name { font-size: 0.92rem; }
+  .bar-row .name.win { color: var(--gold); font-weight: 600; }
+  .bar-track { background: var(--bg-panel); border-radius: 3px; height: 10px; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--wine); border-radius: 3px; }
+  .bar-fill.win { background: var(--gold); }
+  .bar-row .pct { font-family: 'IBM Plex Mono', monospace; font-size: 0.9rem; text-align: right; color: var(--text-dim); }
+
+  .panel { background: var(--bg-panel); border: 1px solid var(--line); border-radius: 6px; padding: 1.4rem 1.5rem; }
+  .panel + .panel { margin-top: 1rem; }
+  .panel .tag { font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; color: var(--gold); }
+  pre { margin: 0.6rem 0 0; font-family: 'IBM Plex Mono', monospace; font-size: 0.82rem; color: var(--text); overflow-x: auto; white-space: pre; }
+
+  .stack { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .pill { border: 1px solid var(--line); border-radius: 999px; padding: 0.4rem 0.9rem; font-size: 0.85rem; color: var(--text-dim); font-family: 'IBM Plex Mono', monospace; }
+
+  footer { margin-top: 5rem; padding-top: 1.8rem; border-top: 1px solid var(--line); color: var(--text-dim); font-size: 0.88rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.6rem; }
+  footer a { color: var(--text); }
+
+  @media (max-width: 480px) {
+    .bar-row { grid-template-columns: 6.2rem 1fr 2.6rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <h1>Tres modelos entrenados.<br>Un ganador claro.<br>Una API lista para usar.</h1>
+    <p class="sub">Proyecto final de la Diplomatura en Python: clasificación automática de vinos por composición química, llevada de notebook a servicio consumible.</p>
+    <div class="meta-row">
+      <div class="meta-item"><span class="num">178</span><span class="lbl">muestras de vino</span></div>
+      <div class="meta-item"><span class="num">13</span><span class="lbl">variables químicas</span></div>
+      <div class="meta-item"><span class="num">3</span><span class="lbl">clases a predecir</span></div>
+      <div class="meta-item"><span class="num">100%</span><span class="lbl">accuracy del modelo elegido</span></div>
+    </div>
+  </div>
+
+  <section>
+    <h2>El recorrido</h2>
+    <div class="flow">
+      <div class="step"><span class="n">01</span><div class="body"><b>Carga y exploración</b><span>Dataset de scikit-learn: composición química de vinos de tres cultivares distintos.</span></div></div>
+      <div class="step"><span class="n">02</span><div class="body"><b>Escalado</b><span>StandardScaler normaliza las variables para que ninguna domine por su magnitud.</span></div></div>
+      <div class="step"><span class="n">03</span><div class="body"><b>Entrenamiento comparado</b><span>Regresión Logística, SVM y Árbol de Decisión, entrenados sobre el mismo split 70/30.</span></div></div>
+      <div class="step"><span class="n">04</span><div class="body"><b>Evaluación</b><span>Precision, recall y f1-score por clase, con classification_report.</span></div></div>
+      <div class="step"><span class="n">05</span><div class="body"><b>Puesta en producción</b><span>El mejor modelo se guarda con joblib y se sirve mediante una API en FastAPI.</span></div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Comparación de modelos</h2>
+    <div class="bars">
+      <div class="bar-row"><span class="name">Regresión Logística</span><div class="bar-track"><div class="bar-fill" style="width:96%"></div></div><span class="pct">0.96</span></div>
+      <div class="bar-row"><span class="name win">SVM</span><div class="bar-track"><div class="bar-fill win" style="width:100%"></div></div><span class="pct">1.00</span></div>
+      <div class="bar-row"><span class="name">Árbol de Decisión</span><div class="bar-track"><div class="bar-fill" style="width:93%"></div></div><span class="pct">0.93</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>La API en acción</h2>
+    <div class="panel">
+      <span class="tag">POST /predict</span>
+      <pre>{ "alcohol": 13.2, "malic_acid": 1.78, ... "proline": 1050 }</pre>
+    </div>
+    <div class="panel">
+      <span class="tag">200 OK</span>
+      <pre>{ "nombre_clase": "class_0", "probabilidades": { "class_0": 0.963, "class_1": 0.024, "class_2": 0.013 } }</pre>
+    </div>
+  </section>
+
+  <section>
+    <h2>Stack</h2>
+    <div class="stack">
+      <span class="pill">Python</span>
+      <span class="pill">scikit-learn</span>
+      <span class="pill">pandas</span>
+      <span class="pill">FastAPI</span>
+      <span class="pill">Pydantic</span>
+      <span class="pill">uvicorn</span>
+      <span class="pill">joblib</span>
+    </div>
+  </section>
+
+  <footer>
+    <span>Javier · Diplomatura Python</span>
+    <a href="https://github.com/Gringuex94/clasificacion-vinos-ml">github.com/Gringuex94/clasificacion-vinos-ml</a>
+  </footer>
+
+</div>
+</body>
+</html>
